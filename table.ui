@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>table_window</class>
+ <widget class="QMainWindow" name="table_window">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -32,7 +32,7 @@
      <rect>
       <x>10</x>
       <y>159</y>
-      <width>912</width>
+      <width>914</width>
       <height>591</height>
      </rect>
     </property>
@@ -42,8 +42,11 @@
       <verstretch>10</verstretch>
      </sizepolicy>
     </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
-     <number>182</number>
+     <number>152</number>
     </attribute>
     <column>
      <property name="text">
@@ -52,26 +55,31 @@
     </column>
     <column>
      <property name="text">
-      <string>Первый пилот время</string>
+      <string>Название</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Первый пилот данные</string>
+      <string>Дата</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Второй пилот время</string>
+      <string>Организатор</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Второй пилот данные</string>
+      <string>Место</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Тип</string>
      </property>
     </column>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="GraphButton">
     <property name="geometry">
      <rect>
       <x>930</x>
@@ -84,7 +92,7 @@
      <string>Открыть график</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="NewRaceButton">
     <property name="geometry">
      <rect>
       <x>930</x>

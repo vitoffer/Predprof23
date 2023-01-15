@@ -31,9 +31,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>159</y>
-      <width>914</width>
-      <height>591</height>
+      <y>9</y>
+      <width>912</width>
+      <height>741</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -46,13 +46,8 @@
      <bool>true</bool>
     </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
-     <number>152</number>
+     <number>182</number>
     </attribute>
-    <column>
-     <property name="text">
-      <string>ID</string>
-     </property>
-    </column>
     <column>
      <property name="text">
       <string>Название</string>
@@ -79,20 +74,7 @@
      </property>
     </column>
    </widget>
-   <widget class="QPushButton" name="GraphButton">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>10</y>
-      <width>161</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Открыть график</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="NewRaceButton">
+   <widget class="QPushButton" name="OpenDataButton">
     <property name="geometry">
      <rect>
       <x>930</x>
@@ -102,7 +84,34 @@
      </rect>
     </property>
     <property name="text">
+     <string>Посмотреть данные 
+выбранного заезда</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="NewRaceButton">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>180</y>
+      <width>161</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
      <string>Добавить заезд</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="StartButton">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>10</y>
+      <width>161</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Начать выбранный заезд</string>
     </property>
    </widget>
   </widget>

@@ -1,6 +1,6 @@
-import csv
 import sys
 
+import sqlite3
 from PyQt5 import uic
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtWidgets import *
@@ -23,10 +23,11 @@ class TableWindow(MainWindow):
     def __init__(self):
         super(TableWindow, self).__init__()
         uic.loadUi('table.ui', self)
-        self.tableWidget.insertRow(0)
-        self.tableWidget.insertRow(0)
+        self.load()
         self.MenuButton.clicked.connect(self.to_main_menu)
         self.NewRaceButton.clicked.connect(self.create_new_race)
+        self.OpenDataButton.clicked.connect(self.start_race)
+
 
     def to_main_menu(self):
         ex.show()
@@ -37,14 +38,59 @@ class TableWindow(MainWindow):
         print(id_race)
         new_race_data = NewRaceDialog()
         if new_race_data.exec():
-            title = new_race_data.title_line.text()
-            date = new_race_data.date_line.text()
-            organizer = new_race_data.org_line.text()
-            place = new_race_data.place_line.text()
-            type = new_race_data.type_line.text()
-            print(title, date, organizer, place, type)
+            self.title = new_race_data.title_line.text()
+            self.date = new_race_data.date_line.text()
+            self.organizer = new_race_data.org_line.text()
+            self.place = new_race_data.place_line.text()
+            self.type = new_race_data.type_line.text()
+            self.pilot1_num = new_race_data.pilot1_line.text()
+            self.pilot2_num = new_race_data.pilot2_line.text()
+            print(self.title, self.date, self.organizer, self.place, self.type)
+            self.add_race_to_table()
         else:
             print(0)
+
+    def add_race_to_table(self):
+        try:
+            sqlite_connection = sqlite3.connect('data.db')
+            cursor = sqlite_connection.cursor()
+            sqlite_create_table_query = f'''INSERT INTO main(race_id, title, date, organizer, place, race_type) VALUES(?, ?, ?, ?, ?, ?);'''
+            dataCopy = cursor.execute("select count(*) from main")
+            values = dataCopy.fetchone()
+            cursor.execute(sqlite_create_table_query, (values[0], self.title, self.date,
+                                                        self.organizer, self.place, self.type))
+            sqlite_connection.commit()
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("Ошибка при подключении к sqlite", error)
+        finally:
+            if sqlite_connection:
+                sqlite_connection.close()
+                print("Соединение с SQLite закрыто")
+
+    def start_race(self):
+        #arduino
+        pass
+
+    def load(self):
+        sqlite_connection = sqlite3.connect('data.db')
+        cur = sqlite_connection.cursor()
+        cur.execute('''SELECT * FROM main''')
+        rows = cur.fetchall()
+
+        for row in rows:
+            inx = rows.index(row)
+            self.tableWidget.insertRow(inx)
+
+            self.tableWidget.setItem(inx, 0, QTableWidgetItem(row[0]))
+            self.tableWidget.setItem(inx, 1, QTableWidgetItem(row[1]))
+            self.tableWidget.setItem(inx, 2, QTableWidgetItem(row[2]))
+            self.tableWidget.setItem(inx, 3, QTableWidgetItem(row[3]))
+            self.tableWidget.setItem(inx, 4, QTableWidgetItem(row[4]))
+            self.tableWidget.setItem(inx, 5, QTableWidgetItem(row[5]))
+        cur.close()
+        sqlite_connection.close()
 
 
 class NewRaceDialog(QDialog):
@@ -53,8 +99,12 @@ class NewRaceDialog(QDialog):
         uic.loadUi('NewRace.ui', self)
 
 
+
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MainWindow()
     ex.show()
     sys.exit(app.exec_())
+

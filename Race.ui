@@ -31,9 +31,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>19</y>
-      <width>910</width>
-      <height>731</height>
+      <y>39</y>
+      <width>914</width>
+      <height>711</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -43,34 +43,29 @@
      </sizepolicy>
     </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
-     <number>227</number>
+     <number>304</number>
     </attribute>
     <column>
      <property name="text">
-      <string>Первый пилот время</string>
+      <string>Время</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Первый пилот данные</string>
+      <string>Пилот X</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Второй пилот время</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Второй пилот данные</string>
+      <string>Пилот Y</string>
      </property>
     </column>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="toGraphButton">
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>10</y>
+      <y>40</y>
       <width>161</width>
       <height>71</height>
      </rect>
@@ -79,17 +74,35 @@
      <string>Открыть график</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="toTableButton">
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>90</y>
+      <y>120</y>
       <width>161</width>
       <height>71</height>
      </rect>
     </property>
     <property name="text">
      <string>К списку заездов</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="type_label">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>0</y>
+      <width>371</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Тип заезда: T&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
   </widget>

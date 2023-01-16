@@ -47,8 +47,10 @@ class TableWindow(MainWindow):
             self.pilot2_num = new_race_data.pilot2_line.text()
             print(self.title, self.date, self.organizer, self.place, self.type)
             self.add_race_to_table()
+            self.load()
         else:
             print(0)
+
 
     def add_race_to_table(self):
         try:
@@ -74,21 +76,19 @@ class TableWindow(MainWindow):
         pass
 
     def load(self):
+        self.tableWidget.setRowCount(0)
         sqlite_connection = sqlite3.connect('data.db')
         cur = sqlite_connection.cursor()
-        cur.execute('''SELECT * FROM main''')
+        cur.execute("SELECT * FROM main")
         rows = cur.fetchall()
-
         for row in rows:
-            inx = rows.index(row)
-            self.tableWidget.insertRow(inx)
-
-            self.tableWidget.setItem(inx, 0, QTableWidgetItem(row[0]))
-            self.tableWidget.setItem(inx, 1, QTableWidgetItem(row[1]))
-            self.tableWidget.setItem(inx, 2, QTableWidgetItem(row[2]))
-            self.tableWidget.setItem(inx, 3, QTableWidgetItem(row[3]))
-            self.tableWidget.setItem(inx, 4, QTableWidgetItem(row[4]))
-            self.tableWidget.setItem(inx, 5, QTableWidgetItem(row[5]))
+            indx = rows.index(row)
+            self.tableWidget.insertRow(indx)
+            self.tableWidget.setItem(indx, 0, QTableWidgetItem(row[1]))
+            self.tableWidget.setItem(indx, 1, QTableWidgetItem(row[2]))
+            self.tableWidget.setItem(indx, 2, QTableWidgetItem(row[3]))
+            self.tableWidget.setItem(indx, 3, QTableWidgetItem(row[4]))
+            self.tableWidget.setItem(indx, 4, QTableWidgetItem(row[5]))
         cur.close()
         sqlite_connection.close()
 
@@ -97,9 +97,6 @@ class NewRaceDialog(QDialog):
     def __init__(self):
         super(NewRaceDialog, self).__init__()
         uic.loadUi('NewRace.ui', self)
-
-
-
 
 
 if __name__ == '__main__':

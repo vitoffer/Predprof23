@@ -11,12 +11,16 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         uic.loadUi('MainWindow.ui', self)
-        self.pushButton.clicked.connect(self.to_table)
+        self.toTableButton.clicked.connect(self.to_table)
+        self.exitButton.clicked.connect(self.exit)
 
     def to_table(self):
         self.t = TableWindow()
         self.t.show()
         self.hide()
+
+    def exit(self):
+        sys.exit()
 
 
 class TableWindow(MainWindow):
@@ -52,6 +56,10 @@ class TableWindow(MainWindow):
             print(0)
 
 
+    # def add_race_table(self):
+
+
+
     def add_race_to_table(self):
         try:
             sqlite_connection = sqlite3.connect('data.db')
@@ -72,7 +80,10 @@ class TableWindow(MainWindow):
                 print("Соединение с SQLite закрыто")
 
     def start_race(self):
-        #arduino
+        if self.tableWidget.currentRow():
+            pass
+        else:
+            self.label_selectRow.setText('Сначала выберите заезд!')
         pass
 
     def load(self):
@@ -97,6 +108,14 @@ class NewRaceDialog(QDialog):
     def __init__(self):
         super(NewRaceDialog, self).__init__()
         uic.loadUi('NewRace.ui', self)
+
+
+class Race(MainWindow):
+    def __init__(self):
+        super(Race, self).__init__()
+        uic.loadUi('Race.ui', self)
+        self.is_started = False
+        self.is_finished = False
 
 
 if __name__ == '__main__':

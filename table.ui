@@ -32,7 +32,7 @@
      <rect>
       <x>10</x>
       <y>9</y>
-      <width>912</width>
+      <width>916</width>
       <height>741</height>
      </rect>
     </property>
@@ -46,7 +46,7 @@
      <bool>true</bool>
     </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
-     <number>179</number>
+     <number>150</number>
     </attribute>
     <column>
      <property name="text">
@@ -71,6 +71,11 @@
     <column>
      <property name="text">
       <string>Тип</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Пилоты</string>
      </property>
     </column>
    </widget>
@@ -112,6 +117,19 @@
     </property>
     <property name="text">
      <string>Начать выбранный заезд</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_selectRow">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>160</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

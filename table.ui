@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
+    <width>1162</width>
     <height>800</height>
    </rect>
   </property>
@@ -30,10 +30,10 @@
    <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>9</y>
+      <x>0</x>
+      <y>0</y>
       <width>916</width>
-      <height>741</height>
+      <height>751</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -132,13 +132,24 @@
      <string/>
     </property>
    </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>919</x>
+      <y>380</y>
+      <width>241</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1100</width>
+     <width>1162</width>
      <height>21</height>
     </rect>
    </property>

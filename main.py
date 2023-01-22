@@ -63,7 +63,6 @@ class TableWindow(QMainWindow):
             x = list(int(_[0]) for _ in cursor.execute(f'SELECT time FROM race_{self.StartRace.id}').fetchall())
             y1 = list(int(_[0]) for _ in cursor.execute(f'SELECT pilot1 FROM race_{self.StartRace.id}').fetchall())
             self.plot(x, y1, "Pilot1", 'r')
-            print(self.StartRace.num_pilots)
             if self.StartRace.num_pilots == 2:
                 y2 = list(int(_[0]) for _ in cursor.execute(f'SELECT pilot2 FROM race_{self.StartRace.id}').fetchall())
                 self.plot(x, y2, "Pilot2", 'b')
@@ -238,13 +237,13 @@ class Race(QMainWindow):
     def save(self):
         sqlite_connection = sqlite3.connect('data.db')
         cur = sqlite_connection.cursor()
-        cur.execute(f'UPDATE main SET isFinished = True WHERE race_id = "{self.id}"')
+        cur.execute(f'UPDATE main SET isFinished="True" WHERE race_id = "{self.id}"')
         if self.num_pilots == 2:
             for i in range(len(self.y1)):
                 cur.execute(f'''INSERT INTO race_{self.id} VALUES (?, ?, ?)''', (str(self.x[i]), str(self.y1[i]), str(self.y2[i])))
         else:
-            for i in range(len(self.x)):
-                cur.execute(f'''INSERT INTO race_{self.id} VALUES (?, ?, ?)''', (str(self.x[i]), str(self.y1), ''))
+            for i in range(len(self.y1)):
+                cur.execute(f'''INSERT INTO race_{self.id} VALUES (?, ?, ?)''', (str(self.x[i]), str(self.y1[i]), ''))
         sqlite_connection.commit()
         cur.close()
         sqlite_connection.close()
@@ -268,10 +267,10 @@ class Race(QMainWindow):
             self.finish()
             return
 
-        self.y1.append(randint(0, 100))
+        self.y1.append(randint(-360, 360))
         self.data_line1.setData(self.x, self.y1)
         if self.num_pilots == 2:
-            self.y2.append(randint(0, 100))
+            self.y2.append(randint(-360, 360))
             self.data_line2.setData(self.x, self.y2)
 
     def finish(self):
@@ -337,4 +336,3 @@ if __name__ == '__main__':
     ex = MainWindow()
     ex.show()
     sys.exit(app.exec_())
-

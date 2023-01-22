@@ -106,19 +106,6 @@
      <string>Добавить заезд</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_selectRow">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>160</y>
-      <width>161</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>

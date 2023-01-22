@@ -17,10 +17,10 @@
    <widget class="QPushButton" name="MenuButton">
     <property name="geometry">
      <rect>
-      <x>934</x>
-      <y>712</y>
+      <x>930</x>
+      <y>680</y>
       <width>161</width>
-      <height>41</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="text">
@@ -65,20 +65,20 @@
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>40</y>
+      <y>520</y>
       <width>161</width>
       <height>71</height>
      </rect>
     </property>
     <property name="text">
-     <string>Открыть график</string>
+     <string>Вернуться к графику</string>
     </property>
    </widget>
    <widget class="QPushButton" name="toTableButton">
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>120</y>
+      <y>600</y>
       <width>161</width>
       <height>71</height>
      </rect>

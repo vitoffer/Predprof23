@@ -47,6 +47,7 @@ class TableWindow(QMainWindow):
         self.MenuButton.clicked.connect(self.to_main_menu)
         self.NewRaceButton.clicked.connect(self.create_new_race)
         self.OpenDataButton.clicked.connect(self.view_race)
+        self.DeleteButton.clicked.connect(self.delete)
 
         self.tableWidget.cellClicked.connect(self.cell_was_clicked)
 
@@ -73,6 +74,20 @@ class TableWindow(QMainWindow):
     def to_main_menu(self):
         ex.show()
         self.hide()
+
+    def delete(self):
+        if not (self.tableWidget.currentRow() + 1):
+            self.label_selectRow.setText('Сначала выберите заезд!')
+        else:
+            self.label_selectRow.setText('')
+            sqlite_connection = sqlite3.connect('data.db')
+            cursor = sqlite_connection.cursor()
+            cursor.execute(f'DELETE FROM main WHERE race_id="{self.StartRace.id}"')
+            cursor.execute(f'DROP TABLE race_{self.StartRace.id}')
+            sqlite_connection.commit()
+            cursor.close()
+            sqlite_connection.close()
+            self.load()
 
     def create_new_race(self):
         new_race_data = NewRaceDialog()
@@ -129,6 +144,7 @@ class TableWindow(QMainWindow):
         if not (self.tableWidget.currentRow() + 1):
             self.label_selectRow.setText('Сначала выберите заезд!')
         else:
+            self.label_selectRow.setText('')
             self.StartRace.show()
             self.hide()
 
@@ -141,12 +157,12 @@ class TableWindow(QMainWindow):
         for row in rows:
             indx = rows.index(row)
             self.tableWidget.insertRow(indx)
-            self.tableWidget.setItem(indx, 0, QTableWidgetItem(row[1]))
-            self.tableWidget.setItem(indx, 1, QTableWidgetItem(row[2]))
-            self.tableWidget.setItem(indx, 2, QTableWidgetItem(row[3]))
-            self.tableWidget.setItem(indx, 3, QTableWidgetItem(row[4]))
-            self.tableWidget.setItem(indx, 4, QTableWidgetItem(row[5]))
-            self.tableWidget.setItem(indx, 5, QTableWidgetItem(row[6]))
+            self.tableWidget.setItem(indx, 0, QTableWidgetItem(str(row[1])))
+            self.tableWidget.setItem(indx, 1, QTableWidgetItem(str(row[2])))
+            self.tableWidget.setItem(indx, 2, QTableWidgetItem(str(row[3])))
+            self.tableWidget.setItem(indx, 3, QTableWidgetItem(str(row[4])))
+            self.tableWidget.setItem(indx, 4, QTableWidgetItem(str(row[5])))
+            self.tableWidget.setItem(indx, 5, QTableWidgetItem(str(row[6])))
         cur.close()
         sqlite_connection.close()
 
@@ -169,7 +185,6 @@ class Race(QMainWindow):
         if cur.execute(f'SELECT isFinished FROM main WHERE race_id={self.id}').fetchone()[0] == 'True':
             self.isFinished = True
             self.isStartedlabel.setText('Заезд завершён')
-
         else:
             self.isFinished = False
             self.isStartedlabel.setText('Заезд не начат')
@@ -185,8 +200,10 @@ class Race(QMainWindow):
         self.tableViewButton.clicked.connect(self.table_view)
         if self.isFinished:
             self.startButton.setEnabled(False)
+            self.tableViewButton.setEnabled(True)
         else:
             self.startButton.setEnabled(True)
+            self.tableViewButton.setEnabled(False)
 
         self.graphWidget = pg.PlotWidget()
         self.layout.addWidget(self.graphWidget)
@@ -248,6 +265,7 @@ class Race(QMainWindow):
         cur.close()
         sqlite_connection.close()
         self.saveDataButton.setEnabled(False)
+        self.tableViewButton.setEnabled(True)
 
     def back(self):
         self.close()

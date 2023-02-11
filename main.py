@@ -121,7 +121,7 @@ class TableWindow(QMainWindow):
         try:
             sqlite_connection = sqlite3.connect('data.db')
             cursor = sqlite_connection.cursor()
-            sqlite_create_table_query = f'''INSERT INTO main(race_id, title, date, organizer, place, race_type, pilots_numbers) VALUES(?, ?, ?, ?, ?, ?, ?);'''
+            sqlite_create_table_query = f'''INSERT INTO main(race_id, title, date, organizer, place, race_type, pilots_numbers, isFinished) VALUES(?, ?, ?, ?, ?, ?, ?, ?);'''
             dataCopy = cursor.execute("select count(*) from main")
             values = dataCopy.fetchone()
             if self.pilot2_num != '':
@@ -129,7 +129,7 @@ class TableWindow(QMainWindow):
             else:
                 pilots = str(self.pilot1_num)
             cursor.execute(sqlite_create_table_query, (values[0], self.title, self.date,
-                                                        self.organizer, self.place, self.type, pilots))
+                                                        self.organizer, self.place, self.type, pilots, 'False'))
             sqlite_connection.commit()
             cursor.close()
 
@@ -154,8 +154,10 @@ class TableWindow(QMainWindow):
         cur = sqlite_connection.cursor()
         cur.execute("SELECT * FROM main")
         rows = cur.fetchall()
+        print(rows)
         for row in rows:
             indx = rows.index(row)
+            print(indx)
             self.tableWidget.insertRow(indx)
             self.tableWidget.setItem(indx, 0, QTableWidgetItem(str(row[1])))
             self.tableWidget.setItem(indx, 1, QTableWidgetItem(str(row[2])))
@@ -313,8 +315,10 @@ class TableViewRace(QMainWindow):
         self.type_label.setText(f'Тип заезда: {r_type}')
         pilot1 = cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.t.StartRace.id}").fetchone()[0].split(', ')[0]
         self.tableWidget.horizontalHeaderItem(1).setText(f'Пилот {pilot1}')
+        print(cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.t.StartRace.id}").fetchone())
         if ex.t.StartRace.num_pilots == 2:
             pilot2 = cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.t.StartRace.id}").fetchone()[0].split(', ')[1]
+            print(pilot2)
             self.tableWidget.horizontalHeaderItem(2).setText(f'Пилот {pilot2}')
         else:
             self.tableWidget.horizontalHeaderItem(2).setText('Нет')

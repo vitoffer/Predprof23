@@ -177,7 +177,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Номер второго пилота&lt;/p&gt;&lt;p&gt;(если есть):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Номер второго пилота&lt;/p&gt;&lt;p&gt;(тип заезда не qualifying):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="pilot2_line">

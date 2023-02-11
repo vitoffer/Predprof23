@@ -9,6 +9,7 @@ from pyqtgraph import PlotWidget, plot
 import numpy as np
 import time
 from random import randint
+import os
 
 
 class MainWindow(QMainWindow):
@@ -58,7 +59,7 @@ class TableWindow(QMainWindow):
     def cell_was_clicked(self):
         self.graphWidget.clear()
         self.StartRace = Race(self.tableWidget.currentRow())
-        sqlite_connection = sqlite3.connect('data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
         cursor = sqlite_connection.cursor()
         if f'race_{self.StartRace.id}' in [_[0] for _ in list(cursor.execute(f'SELECT name FROM sqlite_master WHERE type="table"').fetchall())]:
             x = list(int(_[0]) for _ in cursor.execute(f'SELECT time FROM race_{self.StartRace.id}').fetchall())
@@ -80,7 +81,7 @@ class TableWindow(QMainWindow):
             self.label_selectRow.setText('Сначала выберите заезд!')
         else:
             self.label_selectRow.setText('')
-            sqlite_connection = sqlite3.connect('data.db')
+            sqlite_connection = sqlite3.connect('./data/data.db')
             cursor = sqlite_connection.cursor()
             cursor.execute(f'DELETE FROM main WHERE race_id="{self.StartRace.id}"')
             cursor.execute(f'DROP TABLE race_{self.StartRace.id}')
@@ -106,7 +107,7 @@ class TableWindow(QMainWindow):
             print(0)
 
     def add_race_table(self):
-        sqlite_connection = sqlite3.connect('data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
         cursor = sqlite_connection.cursor()
 
         cursor.execute(f'''CREATE TABLE race_{self.tableWidget.rowCount()} (
@@ -119,7 +120,7 @@ class TableWindow(QMainWindow):
 
     def add_race_to_table(self):
         try:
-            sqlite_connection = sqlite3.connect('data.db')
+            sqlite_connection = sqlite3.connect('./data/data.db')
             cursor = sqlite_connection.cursor()
             sqlite_create_table_query = f'''INSERT INTO main(race_id, title, date, organizer, place, race_type, pilots_numbers, isFinished) VALUES(?, ?, ?, ?, ?, ?, ?, ?);'''
             dataCopy = cursor.execute("select count(*) from main")
@@ -150,7 +151,7 @@ class TableWindow(QMainWindow):
 
     def load(self):
         self.tableWidget.setRowCount(0)
-        sqlite_connection = sqlite3.connect('data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
         cur.execute("SELECT * FROM main")
         rows = cur.fetchall()
@@ -175,7 +176,7 @@ class NewRaceDialog(QDialog):
 
 class Race(QMainWindow):
     def __init__(self, race_id):
-        sqlite_connection = sqlite3.connect('data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
 
         super(Race, self).__init__()
@@ -252,7 +253,7 @@ class Race(QMainWindow):
         self.graphWidget.plot(x, y, name=plotname, pen=pen)
 
     def save(self):
-        sqlite_connection = sqlite3.connect('data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
         cur.execute(f'UPDATE main SET isFinished="True" WHERE race_id = "{self.id}"')
         if self.num_pilots == 2:
@@ -307,7 +308,7 @@ class TableViewRace(QMainWindow):
         self.toGraphButton.clicked.connect(self.graph_view)
         self.toTableButton.clicked.connect(self.to_table)
 
-        sqlite_connection = sqlite3.connect('data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
         r_type = cur.execute(f"SELECT race_type FROM main WHERE race_id={ex.t.StartRace.id}").fetchone()[0]
         self.type_label.setText(f'Тип заезда: {r_type}')
@@ -323,7 +324,7 @@ class TableViewRace(QMainWindow):
 
     def load(self):
         self.tableWidget.setRowCount(0)
-        sqlite_connection = sqlite3.connect('data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
         cur.execute(f"SELECT * FROM race_{ex.t.StartRace.id}")
         rows = cur.fetchall()
@@ -351,6 +352,15 @@ class TableViewRace(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    if not os.path.isfile('./data/data.db'):
+        os.mkdir('./data')
+        os.path.join('./data', 'data.db')
+        sqlite_connection = sqlite3.connect('./data/data.db')
+        cur = sqlite_connection.cursor()
+        cur.execute('CREATE TABLE main (race_id INTEGER, race_type TEXT, title TEXT, date, organizer TEXT, place TEXT, pilots_numbers TEXT, isFinished TEXT)')
+        sqlite_connection.commit()
+        cur.close()
+        sqlite_connection.close()
     ex = MainWindow()
     ex.show()
     sys.exit(app.exec_())

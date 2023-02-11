@@ -154,10 +154,8 @@ class TableWindow(QMainWindow):
         cur = sqlite_connection.cursor()
         cur.execute("SELECT * FROM main")
         rows = cur.fetchall()
-        print(rows)
         for row in rows:
             indx = rows.index(row)
-            print(indx)
             self.tableWidget.insertRow(indx)
             self.tableWidget.setItem(indx, 0, QTableWidgetItem(str(row[1])))
             self.tableWidget.setItem(indx, 1, QTableWidgetItem(str(row[2])))

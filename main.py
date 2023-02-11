@@ -315,10 +315,8 @@ class TableViewRace(QMainWindow):
         self.type_label.setText(f'Тип заезда: {r_type}')
         pilot1 = cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.t.StartRace.id}").fetchone()[0].split(', ')[0]
         self.tableWidget.horizontalHeaderItem(1).setText(f'Пилот {pilot1}')
-        print(cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.t.StartRace.id}").fetchone())
         if ex.t.StartRace.num_pilots == 2:
             pilot2 = cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.t.StartRace.id}").fetchone()[0].split(', ')[1]
-            print(pilot2)
             self.tableWidget.horizontalHeaderItem(2).setText(f'Пилот {pilot2}')
         else:
             self.tableWidget.horizontalHeaderItem(2).setText('Нет')

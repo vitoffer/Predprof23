@@ -3,7 +3,9 @@ import sys
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
-from CompetitionsTable import *
+import pyqtgraph as pg
+import requests
+import numpy as np
 import os
 
 
@@ -296,12 +298,7 @@ class Race(QMainWindow):
         self.pen1 = pg.mkPen(color=(255, 0, 0))
         self.pen2 = pg.mkPen(color=(0, 0, 255))
 
-        if cur.execute(f'SELECT time from race_{self.id}').fetchone() is None:
-            self.x = [round(i, 1) for i in np.arange(0, 60.1, 0.1)]
-            for i in self.x:
-                cur.execute(f'INSERT INTO race_{self.id} (time) VALUES({i})')
-        else:
-            self.x = [i[0] for i in cur.execute(f'SELECT time FROM race_{self.id}').fetchall()]
+
 
         sqlite_connection.commit()
         cur.close()
@@ -322,6 +319,8 @@ class Race(QMainWindow):
         cur = sqlite_connection.cursor()
         if self.isFinished:
             self.y1 = list(float(_[0]) for _ in cur.execute(f'SELECT pilot1 FROM race_{str(self.id)}').fetchall())
+            print(self.x)
+            print(self.y1)
             self.plot(self.x, self.y1, "Pilot1", 'r')
             if self.num_pilots == 2:
                 self.y2 = list(float(_[0]) for _ in cur.execute(f'SELECT pilot2 FROM race_{str(self.id)}').fetchall())
@@ -358,14 +357,25 @@ class Race(QMainWindow):
         cur = sqlite_connection.cursor()
         print(self.y1)
         print(len(self.y1))
-        for i in range(len(self.y1)):
+        if cur.execute(f'SELECT time from race_{self.id}').fetchone() is None:
+            self.x = [round(i, 1) for i in np.arange(0, 10.1, 0.1)]
+        else:
+            self.x = [i[0] for i in cur.execute(f'SELECT time FROM race_{self.id}').fetchall()]
+        for i in range(101):
             if self.pilot == 1:
                 print(self.x[i])
-                cur.execute(f'UPDATE race_{self.id} SET pilot1 = {self.y1[i]} WHERE time = {str(self.x[i])}')
+                cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES({self.x[i]}, {self.y1[i]}, "")')
             else:
                 print(self.x[i])
                 cur.execute(f'UPDATE race_{self.id} SET pilot2 = {self.y1[i]} WHERE time={str(self.x[i])}')
+        if self.num_pilots == 1:
+            self.isFinished = True
             cur.execute(f'UPDATE races SET isFinished="True" WHERE race_id = "{self.id}"')
+        elif self.num_pilots == 2:
+            if self.pilot == 1:
+                self.isFinished1 = True
+            elif self.pilot == 2 and self.isFinished1:
+                self.isFinished2 = True
         sqlite_connection.commit()
         cur.close()
         sqlite_connection.close()
@@ -422,12 +432,12 @@ class TableView(QMainWindow):
 
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
-        r_type = cur.execute(f"SELECT race_type FROM main WHERE race_id={ex.table.Competition.StartRace.id}").fetchone()[0]
+        r_type = cur.execute(f"SELECT type FROM races WHERE race_id={ex.table.Competition.StartRace.id}").fetchone()[0]
         self.type_label.setText(f'Тип заезда: {r_type}')
-        pilot1 = cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.table.Competition.StartRace.id}").fetchone()[0].split(', ')[0]
+        pilot1 = cur.execute(f"SELECT pilots_numbers FROM races WHERE race_id={ex.table.Competition.StartRace.id}").fetchone()[0].split(', ')[0]
         self.tableWidget.horizontalHeaderItem(1).setText(f'Пилот {pilot1}')
         if ex.table.Competition.StartRace.num_pilots == 2:
-            pilot2 = cur.execute(f"SELECT pilots_numbers FROM main WHERE race_id={ex.table.Competition.StartRace.id}").fetchone()[0].split(', ')[1]
+            pilot2 = cur.execute(f"SELECT pilots_numbers FROM races WHERE race_id={ex.table.Competition.StartRace.id}").fetchone()[0].split(', ')[1]
             self.tableWidget.horizontalHeaderItem(2).setText(f'Пилот {pilot2}')
         else:
             self.tableWidget.horizontalHeaderItem(2).setText('Нет')

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1176</width>
+    <height>875</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>941</width>
+      <height>831</height>
+     </rect>
+    </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>187</number>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>ID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Название</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Дата</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Организатор</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Место</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QPushButton" name="addButton">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>40</y>
+      <width>211</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Добавить соревнование</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="deleteButton">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>140</y>
+      <width>211</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Удалить соревнование</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="menuButton">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>720</y>
+      <width>211</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Главное меню</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="toRacesButton">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>260</y>
+      <width>211</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Просмотр заездов соревнования</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_selectRow">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>370</y>
+      <width>191</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1176</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

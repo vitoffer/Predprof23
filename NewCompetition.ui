@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>191</width>
-    <height>331</height>
+    <width>211</width>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>240</y>
+     <y>280</y>
      <width>91</width>
      <height>51</height>
     </rect>
@@ -29,23 +29,23 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="type_line">
+  <widget class="QLineEdit" name="title_line">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>50</y>
+     <x>30</x>
+     <y>40</y>
      <width>151</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_type">
+  <widget class="QLabel" name="label_title">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>30</x>
      <y>20</y>
      <width>151</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="font">
@@ -54,16 +54,16 @@
     </font>
    </property>
    <property name="text">
-    <string>Тип заезда</string>
+    <string>Название соревнования:</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_pilot1">
+  <widget class="QLabel" name="label_date">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>30</x>
      <y>80</y>
      <width>151</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="font">
@@ -72,26 +72,26 @@
     </font>
    </property>
    <property name="text">
-    <string>Номер первого пилота:</string>
+    <string>Дата</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="pilot1_line">
+  <widget class="QLineEdit" name="date_line">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>110</y>
+     <x>30</x>
+     <y>100</y>
      <width>151</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_pilot2">
+  <widget class="QLabel" name="label_organizer">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>30</x>
      <y>140</y>
      <width>151</width>
-     <height>51</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="font">
@@ -100,16 +100,44 @@
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Номер второго пилота&lt;/p&gt;&lt;p&gt;(если тип не qualifying):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>Организатор</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="pilot2_line">
+  <widget class="QLineEdit" name="organizer_line">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>30</x>
+     <y>160</y>
+     <width>151</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_place">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
      <y>200</y>
      <width>151</width>
-     <height>21</height>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Место</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="place_line">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>220</y>
+     <width>151</width>
+     <height>31</height>
     </rect>
    </property>
   </widget>

@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Главное меню</string>
+     <string>К списку соревнований</string>
     </property>
    </widget>
    <widget class="QTableWidget" name="tableWidget">
@@ -102,7 +102,7 @@
      </font>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Тип заезда: T&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Тип заезда: _&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
   </widget>

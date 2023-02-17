@@ -30,9 +30,9 @@
    <widget class="QPushButton" name="toTableButton">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>140</x>
       <y>190</y>
-      <width>211</width>
+      <width>251</width>
       <height>71</height>
      </rect>
     </property>
@@ -42,7 +42,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Таблица заездов</string>
+     <string>Таблица соревнований</string>
     </property>
    </widget>
    <widget class="QPushButton" name="exitButton">
@@ -61,24 +61,6 @@
     </property>
     <property name="text">
      <string>Выход</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="optionsButton">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>270</y>
-      <width>211</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>16</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Настройки</string>
     </property>
    </widget>
   </widget>

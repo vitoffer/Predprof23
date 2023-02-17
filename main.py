@@ -47,8 +47,11 @@ class CompsTableWindow(QMainWindow):
             sqlite_connection = sqlite3.connect('./data/data.db')
             cursor = sqlite_connection.cursor()
             sqlite_insert = f'INSERT INTO competitions(comp_id, title, date, organizer, place) VALUES(?, ?, ?, ?, ?)'
-            dataCopy = cursor.execute("select * from competitions")
-            last_id = int(dataCopy.fetchall()[-1][0]) + 1
+            dataCopy = cursor.execute("select * from competitions").fetchall()
+            if len(dataCopy) == 0:
+                last_id = 1
+            else:
+                last_id = int(dataCopy[-1][0]) + 1
             cursor.execute(sqlite_insert, (last_id, title, date, organizer, place))
             sqlite_connection.commit()
             cursor.close()
@@ -193,8 +196,11 @@ class RacesTableWindow(QMainWindow):
             sqlite_connection = sqlite3.connect('./data/data.db')
             cursor = sqlite_connection.cursor()
             sqlite_insert = 'INSERT INTO races(race_id, comp_id, type, pilots_numbers, isFinished) VALUES(?, ?, ?, ?, "False")'
-            dataCopy = cursor.execute("select * from races")
-            last_id = int(dataCopy.fetchall()[-1][0]) + 1
+            dataCopy = cursor.execute("select * from races").fetchall()
+            if len(dataCopy) == 0:
+                last_id = 1
+            else:
+                last_id = int(dataCopy[-1][0]) + 1
             if pilot2_num == '':
                 cursor.execute(sqlite_insert, (last_id, self.id, type, pilot1_num))
             else:
@@ -355,7 +361,6 @@ class Race(QMainWindow):
         cur = sqlite_connection.cursor()
         self.x = [round(i, 1) for i in np.arange(0, 60.1, 0.1)]
         finish1, finish2 = False, False
-        print(self.pilot)
         if self.pilot == 1:
             if self.num_pilots == 2 and self.isFinished2:
                 last_data2 = cur.execute(f'SELECT * FROM race_{self.id}').fetchall()
@@ -369,14 +374,10 @@ class Race(QMainWindow):
             y1_up = [self.y1[-1]] * (1201 - ln)
             if ln < 1201:
                 self.y1.extend(y1_up)
-                print(y1_up)
-                print(self.y1)
             elif ln > 1201:
                 self.y1 = self.y1[:1201]
-            print(self.y1)
             self.y1 = self.y1[::2]
             self.y1.append(self.y1[-1])
-            print(self.y1)
         else:
             if self.num_pilots == 2 and self.isFinished1:
                 last_data1 = cur.execute(f'SELECT * FROM race_{self.id}').fetchall()
@@ -387,18 +388,13 @@ class Race(QMainWindow):
                 sqlite_connection.commit()
             self.y2 = self.y2[:-1]
             ln = len(self.y2)
-            print(ln)
             y2_up = [self.y2[-1]] * (1201 - ln)
             if ln < 1201:
                 self.y2.extend(y2_up)
             elif ln > 1201:
                 self.y2 = self.y2[:1201]
-            print(self.y2)
             self.y2 = self.y2[::2]
             self.y2.append(self.y2[-1])
-
-        print(len(self.y1))
-        print(self.pilot)
 
         for i in range(601):
             if self.pilot == 1:
@@ -415,8 +411,6 @@ class Race(QMainWindow):
                     cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES(?, ?, ?)', (self.x[i], None, self.y2[i]))
         if self.num_pilots == 1:
             self.isFinished = True
-            print(type(self.id))
-            print(self.id)
             cur.execute(f'UPDATE races SET isFinished="True" WHERE race_id ={self.id}')
         elif self.num_pilots == 2:
             if self.pilot == 1 and not self.isFinished2:
@@ -485,8 +479,6 @@ class Race(QMainWindow):
         self.save()
         self.load()
         self.startButton.setEnabled(False)
-        self.pilot1Button.setEnabled(False)
-        self.pilot2Button.setEnabled(False)
 
 
 
@@ -547,7 +539,20 @@ if __name__ == '__main__':
         os.path.join('./data', 'data.db')
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
-        cur.execute('CREATE TABLE main (race_id INTEGER, race_type TEXT, title TEXT, date, organizer TEXT, place TEXT, pilots_numbers TEXT, isFinished TEXT)')
+        cur.execute('''CREATE TABLE competitions (
+    comp_id   INTEGER,
+    title     TEXT,
+    date,
+    organizer TEXT,
+    place     TEXT
+)''')
+        cur.execute('''CREATE TABLE races (
+    race_id        INTEGER,
+    comp_id        INTEGER,
+    type           TEXT,
+    pilots_numbers TEXT,
+    isFinished     TEXT
+)''')
         sqlite_connection.commit()
         cur.close()
         sqlite_connection.close()

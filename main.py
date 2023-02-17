@@ -1,7 +1,8 @@
 import sqlite3
 import sys
+
 from PyQt5 import uic
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 import pyqtgraph as pg
 import requests
@@ -64,6 +65,10 @@ class CompsTableWindow(QMainWindow):
             sqlite_connection = sqlite3.connect('./data/data.db')
             cursor = sqlite_connection.cursor()
             cursor.execute(f'DELETE FROM competitions WHERE comp_id="{self.Competition.id}"')
+            for i in cursor.execute(f'SELECT race_id from races WHERE comp_id={self.Competition.id}').fetchall():
+                cursor.execute(f'DROP table race_{i[0]}')
+            cursor.execute(f'DELETE FROM races WHERE comp_id="{self.Competition.id}"')
+
             sqlite_connection.commit()
             cursor.close()
             sqlite_connection.close()
@@ -143,18 +148,18 @@ class RacesTableWindow(QMainWindow):
         self.StartRace = Race(int(self.tableWidget.item(self.tableWidget.currentRow(), 0).text()))
         sqlite_connection = sqlite3.connect('./data/data.db')
         cursor = sqlite_connection.cursor()
-        x = list(int(_[0]) for _ in cursor.execute(f'SELECT time FROM race_{self.StartRace.id}').fetchall())
+        x = list(float(_[0]) for _ in cursor.execute(f'SELECT time FROM race_{self.StartRace.id}').fetchall())
         if self.StartRace.isFinished:
-            y1 = list(int(_[0]) for _ in cursor.execute(f'SELECT pilot1 FROM race_{self.StartRace.id}').fetchall())
+            y1 = list(float(_[0]) for _ in cursor.execute(f'SELECT pilot1 FROM race_{self.StartRace.id}').fetchall())
             self.plot(x, y1, "Pilot1", 'r')
             if self.StartRace.num_pilots == 2:
-                y2 = list(int(_[0]) for _ in cursor.execute(f'SELECT pilot2 FROM race_{self.StartRace.id}').fetchall())
+                y2 = list(float(_[0]) for _ in cursor.execute(f'SELECT pilot2 FROM race_{self.StartRace.id}').fetchall())
                 self.plot(x, y2, "Pilot2", 'b')
         elif self.StartRace.isFinished1:
-            y1 = list(int(_[0]) for _ in cursor.execute(f'SELECT pilot1 FROM race_{self.StartRace.id}').fetchall())
+            y1 = list(float(_[0]) for _ in cursor.execute(f'SELECT pilot1 FROM race_{self.StartRace.id}').fetchall())
             self.plot(x, y1, "Pilot1", 'r')
         elif self.StartRace.isFinished2:
-            y2 = list(int(_[0]) for _ in cursor.execute(f'SELECT pilot2 FROM race_{self.StartRace.id}').fetchall())
+            y2 = list(float(_[0]) for _ in cursor.execute(f'SELECT pilot2 FROM race_{self.StartRace.id}').fetchall())
             self.plot(x, y2, "Pilot2", 'b')
 
         sqlite_connection.commit()
@@ -187,11 +192,13 @@ class RacesTableWindow(QMainWindow):
             pilot2_num = new_race_data.pilot2_line.text()
             sqlite_connection = sqlite3.connect('./data/data.db')
             cursor = sqlite_connection.cursor()
-            sqlite_insert = 'INSERT INTO races(race_id, comp_id, type, pilots_numbers, isFinished) VALUES(?, ?, ?, ?, False)'
+            sqlite_insert = 'INSERT INTO races(race_id, comp_id, type, pilots_numbers, isFinished) VALUES(?, ?, ?, ?, "False")'
             dataCopy = cursor.execute("select * from races")
             last_id = int(dataCopy.fetchall()[-1][0]) + 1
-            cursor.execute(sqlite_insert, (last_id, self.id, type, ', '.join([pilot1_num, pilot2_num])))
-            print(last_id)
+            if pilot2_num == '':
+                cursor.execute(sqlite_insert, (last_id, self.id, type, pilot1_num))
+            else:
+                cursor.execute(sqlite_insert, (last_id, self.id, type, ', '.join([pilot1_num, pilot2_num])))
             cursor.execute(f'CREATE TABLE race_{last_id}(time REAL, pilot1, pilot2)')
             sqlite_connection.commit()
             cursor.close()
@@ -244,6 +251,7 @@ class Race(QMainWindow):
         self.pilot1_num = a[0]
         if len(a) == 1:
             self.num_pilots = 1
+            self.pilot2Button.setEnabled(False)
         else:
             self.num_pilots = 2
             self.pilot2_num = a[1]
@@ -258,16 +266,24 @@ class Race(QMainWindow):
             self.isStartedlabel.setText('Заезд завершён')
             self.startButton.setEnabled(False)
             self.tableViewButton.setEnabled(True)
+            self.pilot2Button.setEnabled(False)
         else:
             self.startButton.setEnabled(True)
             self.tableViewButton.setEnabled(False)
-            if cur.execute(f'SELECT pilot1 FROM race_{self.id}').fetchone() is None and cur.execute(f'SELECT pilot2 FROM race_{self.id}').fetchone() is not None:
+            a = cur.execute(f'SELECT pilot1 FROM race_{self.id}').fetchone()
+            b = cur.execute(f'SELECT pilot2 FROM race_{self.id}').fetchone()
+            if a is None and b is None:
+                self.isStartedlabel.setText('Заезд не начат')
+                self.isFinished2 = False
+                self.isFinished1 = False
+            elif a[0] is None:
                 self.isFinished1 = False
                 self.isFinished2 = True
                 self.isStartedlabel.setText(f'Заезд не начат для пилота {self.pilot1_num}')
-            elif cur.execute(f'SELECT pilot2 FROM race_{self.id}').fetchone() is None and cur.execute(f'SELECT pilot1 FROM race_{self.id}').fetchone() is not None and self.num_pilots == 2:
+            elif b[0] is None and self.num_pilots == 2:
                 self.isFinished2 = False
                 self.isFinished1 = True
+                self.startButton.setEnabled(False)
                 self.isStartedlabel.setText(f'Заезд не начат для пилота {self.pilot2_num}')
             else:
                 self.isStartedlabel.setText('Заезд не начат')
@@ -277,8 +293,6 @@ class Race(QMainWindow):
 
         #buttons:
         self.pilot1Button.setEnabled(False)
-        self.stopButton.setEnabled(False)
-        self.stopButton.clicked.connect(self.finish)
         self.backButton.clicked.connect(self.back)
         self.startButton.clicked.connect(self.start)
         self.tableViewButton.clicked.connect(self.table_view)
@@ -318,64 +332,101 @@ class Race(QMainWindow):
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
         if self.isFinished:
+            self.x = list(float(_[0]) for _ in cur.execute(f'SELECT time FROM race_{str(self.id)}').fetchall())
             self.y1 = list(float(_[0]) for _ in cur.execute(f'SELECT pilot1 FROM race_{str(self.id)}').fetchall())
-            print(self.x)
-            print(self.y1)
             self.plot(self.x, self.y1, "Pilot1", 'r')
             if self.num_pilots == 2:
                 self.y2 = list(float(_[0]) for _ in cur.execute(f'SELECT pilot2 FROM race_{str(self.id)}').fetchall())
                 self.plot(self.x, self.y2, "Pilot2", 'b')
         elif self.isFinished1:
+            self.x = list(float(_[0]) for _ in cur.execute(f'SELECT time FROM race_{str(self.id)}').fetchall())
             self.y1 = list(float(_[0]) for _ in cur.execute(f'SELECT pilot1 FROM race_{str(self.id)}').fetchall())
             self.plot(self.x, self.y1, "Pilot1", 'r')
         elif self.isFinished2:
+            self.x = list(float(_[0]) for _ in cur.execute(f'SELECT time FROM race_{str(self.id)}').fetchall())
             self.y2 = list(float(_[0]) for _ in cur.execute(f'SELECT pilot2 FROM race_{str(self.id)}').fetchall())
             self.plot(self.x, self.y2, "Pilot2", 'b')
         cur.close()
         sqlite_connection.close()
 
-    # def save(self):
-    #     url = 'http://esp8266.local/download'
-    #     req = requests.get(url).text.split(';\n')
-    #     sqlite_connection = sqlite3.connection('./data/data.db')
-    #     cur = sqlite_connection.cursor
-    #     for i in range(len(req)):
-    #         if not self.isFinished:
-    #             cur.execute(f'INSERT INTO race_{self.race_id} (time) VALUES({str(self.x[i])})')
-    #         if self.pilot1:
-    #             cur.execute(f'INSERT INTO race_{self.race_id} (pilot1) VALUES({float(req[i])})')
-    #         else:
-    #             cur.execute(f'INSERT INTO race_{self.race_id} (pilot2) VALUES({float(req[i])})')
-    #     cur.execute(f'UPDATE main SET isFinished="True" WHERE race_id = "{self.id}"')
-    #     sqlite_connection.commit()
-    #     cur.close()
-    #     sqlite_connection.close()
-    #     self.tableViewButton.setEnabled(True)
 
     def save(self):
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
-        print(self.y1)
-        print(len(self.y1))
-        if cur.execute(f'SELECT time from race_{self.id}').fetchone() is None:
-            self.x = [round(i, 1) for i in np.arange(0, 10.1, 0.1)]
+        self.x = [round(i, 1) for i in np.arange(0, 60.1, 0.1)]
+        finish1, finish2 = False, False
+        print(self.pilot)
+        if self.pilot == 1:
+            if self.num_pilots == 2 and self.isFinished2:
+                last_data2 = cur.execute(f'SELECT * FROM race_{self.id}').fetchall()
+                finish2 = True
+                last_time = [_[0] for _ in last_data2]
+                last_pilot2 = [_[2] for _ in last_data2]
+                cur.execute(f'DELETE FROM race_{self.id}')
+                sqlite_connection.commit()
+            self.y1 = self.y1[:-1]
+            ln = len(self.y1)
+            y1_up = [self.y1[-1]] * (1201 - ln)
+            if ln < 1201:
+                self.y1.extend(y1_up)
+                print(y1_up)
+                print(self.y1)
+            elif ln > 1201:
+                self.y1 = self.y1[:1201]
+            print(self.y1)
+            self.y1 = self.y1[::2]
+            self.y1.append(self.y1[-1])
+            print(self.y1)
         else:
-            self.x = [i[0] for i in cur.execute(f'SELECT time FROM race_{self.id}').fetchall()]
-        for i in range(101):
+            if self.num_pilots == 2 and self.isFinished1:
+                last_data1 = cur.execute(f'SELECT * FROM race_{self.id}').fetchall()
+                finish1 = True
+                last_time = [_[0] for _ in last_data1]
+                last_pilot1 = [_[1] for _ in last_data1]
+                cur.execute(f'DELETE FROM race_{self.id}')
+                sqlite_connection.commit()
+            self.y2 = self.y2[:-1]
+            ln = len(self.y2)
+            print(ln)
+            y2_up = [self.y2[-1]] * (1201 - ln)
+            if ln < 1201:
+                self.y2.extend(y2_up)
+            elif ln > 1201:
+                self.y2 = self.y2[:1201]
+            print(self.y2)
+            self.y2 = self.y2[::2]
+            self.y2.append(self.y2[-1])
+
+        print(len(self.y1))
+        print(self.pilot)
+
+        for i in range(601):
             if self.pilot == 1:
-                print(self.x[i])
-                cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES({self.x[i]}, {self.y1[i]}, "")')
+                if finish2:
+                    cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES(?, ?, ?)',
+                                (last_time[i], self.y1[i], last_pilot2[i]))
+                else:
+                    cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES(?, ?, ?)', (self.x[i], self.y1[i], None))
             else:
-                print(self.x[i])
-                cur.execute(f'UPDATE race_{self.id} SET pilot2 = {self.y1[i]} WHERE time={str(self.x[i])}')
+                if finish1:
+                    cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES(?, ?, ?)',
+                                (last_time[i], last_pilot1[i], self.y2[i]))
+                else:
+                    cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES(?, ?, ?)', (self.x[i], None, self.y2[i]))
         if self.num_pilots == 1:
             self.isFinished = True
-            cur.execute(f'UPDATE races SET isFinished="True" WHERE race_id = "{self.id}"')
+            print(type(self.id))
+            print(self.id)
+            cur.execute(f'UPDATE races SET isFinished="True" WHERE race_id ={self.id}')
         elif self.num_pilots == 2:
-            if self.pilot == 1:
+            if self.pilot == 1 and not self.isFinished2:
                 self.isFinished1 = True
-            elif self.pilot == 2 and self.isFinished1:
+            elif self.pilot == 2 and not self.isFinished1:
                 self.isFinished2 = True
+            else:
+                self.isFinished = True
+                cur.execute(f'UPDATE races SET isFinished="True" WHERE race_id ={self.id}')
+
         sqlite_connection.commit()
         cur.close()
         sqlite_connection.close()
@@ -387,39 +438,56 @@ class Race(QMainWindow):
 
     def change_to_pilot1(self):
         self.pilot1Button.setEnabled(False)
-        self.pilot2Button.setEnabled(True)
         self.pilot = 1
+        if not self.isFinished1:
+            self.startButton.setEnabled(True)
+        if self.isFinished2:
+            self.pilot2Button.setEnabled(False)
+        else:
+            self.pilot2Button.setEnabled(True)
 
     def change_to_pilot2(self):
-        self.pilot1Button.setEnabled(True)
         self.pilot2Button.setEnabled(False)
         self.pilot = 2
+        if not self.isFinished2:
+            self.startButton.setEnabled(True)
+        if self.isFinished1:
+            self.pilot1Button.setEnabled(False)
+        else:
+            self.pilot1Button.setEnabled(True)
 
     def start(self):
-        sqlite_connection = sqlite3.connect('./data/data.db')
-        cur = sqlite_connection.cursor()
-        sqlite_connection.commit()
-        cur.close()
-        sqlite_connection.close()
         url = 'http://esp8266.local/start'
         req = requests.get(url)
         if req:
             self.isStartedlabel.setText(f'Заезд начался...')
+        self.pilot1Button.setEnabled(False)
+        self.pilot2Button.setEnabled(False)
+        self.startButton.setEnabled(False)
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.finish)
-        self.timer.start(10000)
+        self.timer.start(60000)
 
     def finish(self):
         url = 'http://esp8266.local/download'
         req = requests.get(url)
         if req:
-            self.y1 = req.text.split(';\n')
+            if self.pilot == 1:
+                self.y1 = req.text.split(';\n')
+            else:
+                self.y2 = req.text.split(';\n')
+        if self.pilot == 2:
+            self.pilot1Button.setEnabled(True)
+        if self.pilot == 1:
+            self.pilot2Button.setEnabled(True)
         self.isStartedlabel.setText('Заезд завершён')
         self.save()
         self.load()
         self.startButton.setEnabled(False)
-        self.stopButton.setEnabled(False)
+        self.pilot1Button.setEnabled(False)
+        self.pilot2Button.setEnabled(False)
+
 
 
 class TableView(QMainWindow):
@@ -461,7 +529,7 @@ class TableView(QMainWindow):
 
     def menu(self):
         self.close()
-        ex.show()
+        ex.table.show()
 
     def graph_view(self):
         self.close()

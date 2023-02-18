@@ -14,19 +14,6 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="MenuButton">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>680</y>
-      <width>161</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>К списку соревнований</string>
-    </property>
-   </widget>
    <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
@@ -65,26 +52,13 @@
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>520</y>
+      <y>650</y>
       <width>161</width>
       <height>71</height>
      </rect>
     </property>
     <property name="text">
      <string>Вернуться к графику</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="toTableButton">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>600</y>
-      <width>161</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>К списку заездов</string>
     </property>
    </widget>
    <widget class="QLabel" name="type_label">

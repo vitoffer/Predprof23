@@ -118,8 +118,8 @@
    <widget class="QLabel" name="label_selectRow">
     <property name="geometry">
      <rect>
-      <x>930</x>
-      <y>342</y>
+      <x>740</x>
+      <y>310</y>
       <width>221</width>
       <height>21</height>
      </rect>

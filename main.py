@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import datetime
 
 from PyQt5 import uic
 from PyQt5 import QtCore
@@ -36,6 +37,7 @@ class CompsTableWindow(QMainWindow):
         self.toRacesButton.clicked.connect(self.view_competition)
         self.tableWidget.cellClicked.connect(self.cell_was_clicked)
         self.load()
+        self.Competition = None
 
     def add_competition(self):
         new_comp_data = NewCompetitionDialog()
@@ -82,7 +84,7 @@ class CompsTableWindow(QMainWindow):
         self.Competition = RacesTableWindow(int(a.text()))
 
     def view_competition(self):
-        if not (self.tableWidget.currentRow() + 1):
+        if not (self.tableWidget.currentRow() + 1) or self.Competition is None:
             self.label_selectRow.setText('Сначала выберите соревнование!')
         else:
             self.label_selectRow.setText('')
@@ -123,6 +125,7 @@ class RacesTableWindow(QMainWindow):
         uic.loadUi('RacesTable.ui', self)
         self.id = comp_id
         self.load()
+        self.StartRace = None
 
         #graphWidget:
         self.graphWidget = pg.PlotWidget()
@@ -132,8 +135,8 @@ class RacesTableWindow(QMainWindow):
         styles = {'color': 'b', 'font-size': '10px'}
         self.graphWidget.setLabel('left', 'Угол (°)', **styles)
         self.graphWidget.setLabel('bottom', 'Время (с)', **styles)
-        self.graphWidget.setYRange(-360, 360)
-        self.graphWidget.setXRange(0, 60)
+        self.graphWidget.setYRange(-200, 200)
+        self.graphWidget.setXRange(0, 30)
 
         #button clicks:
         self.MenuButton.clicked.connect(self.to_competitions)
@@ -195,16 +198,16 @@ class RacesTableWindow(QMainWindow):
             pilot2_num = new_race_data.pilot2_line.text()
             sqlite_connection = sqlite3.connect('./data/data.db')
             cursor = sqlite_connection.cursor()
-            sqlite_insert = 'INSERT INTO races(race_id, comp_id, type, pilots_numbers, isFinished) VALUES(?, ?, ?, ?, "False")'
+            sqlite_insert = 'INSERT INTO races(race_id, comp_id, type, pilots_numbers, isFinished, start_time, end_time) VALUES(?, ?, ?, ?, ?, ?, ?)'
             dataCopy = cursor.execute("select * from races").fetchall()
             if len(dataCopy) == 0:
                 last_id = 1
             else:
                 last_id = int(dataCopy[-1][0]) + 1
             if pilot2_num == '':
-                cursor.execute(sqlite_insert, (last_id, self.id, type, pilot1_num))
+                cursor.execute(sqlite_insert, (last_id, self.id, type, pilot1_num, "False", None, None))
             else:
-                cursor.execute(sqlite_insert, (last_id, self.id, type, ', '.join([pilot1_num, pilot2_num])))
+                cursor.execute(sqlite_insert, (last_id, self.id, type, ', '.join([pilot1_num, pilot2_num]), "False", None, None))
             cursor.execute(f'CREATE TABLE race_{last_id}(time REAL, pilot1, pilot2)')
             sqlite_connection.commit()
             cursor.close()
@@ -214,7 +217,7 @@ class RacesTableWindow(QMainWindow):
             pass
 
     def view_race(self):
-        if not (self.tableWidget.currentRow() + 1):
+        if not (self.tableWidget.currentRow() + 1) or self.StartRace is None:
             self.label_selectRow.setText('Сначала выберите заезд!')
         else:
             self.label_selectRow.setText('')
@@ -313,8 +316,8 @@ class Race(QMainWindow):
         styles = {'color': 'b', 'font-size': '10px'}
         self.graphWidget.setLabel('left', 'Угол (°)', **styles)
         self.graphWidget.setLabel('bottom', 'Время (с)', **styles)
-        self.graphWidget.setYRange(-360, 360)
-        self.graphWidget.setXRange(0, 60)
+        self.graphWidget.setYRange(-200, 200)
+        self.graphWidget.setXRange(0, 30)
         self.pen1 = pg.mkPen(color=(255, 0, 0))
         self.pen2 = pg.mkPen(color=(0, 0, 255))
 
@@ -359,7 +362,7 @@ class Race(QMainWindow):
     def save(self):
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
-        self.x = [round(i, 1) for i in np.arange(0, 60.1, 0.1)]
+        self.x = [round(i, 1) for i in np.arange(0, 30.1, 0.1)]
         finish1, finish2 = False, False
         if self.pilot == 1:
             if self.num_pilots == 2 and self.isFinished2:
@@ -369,15 +372,23 @@ class Race(QMainWindow):
                 last_pilot2 = [_[2] for _ in last_data2]
                 cur.execute(f'DELETE FROM race_{self.id}')
                 sqlite_connection.commit()
+            self.y1 = self.y1[::3]
+            a = float(self.y1[0])
+            self.y1 = self.y1[1:]
             self.y1 = self.y1[:-1]
+            self.y1 = [str((float(i) - a) - ((float(i) - a) % 5)) for i in self.y1]
+            self.y1.insert(0, '0')
             ln = len(self.y1)
-            y1_up = [self.y1[-1]] * (1201 - ln)
-            if ln < 1201:
+            y1_up = [self.y1[-1]] * (301 - ln)
+            if ln < 301:
                 self.y1.extend(y1_up)
-            elif ln > 1201:
-                self.y1 = self.y1[:1201]
-            self.y1 = self.y1[::2]
+            elif ln > 301:
+                self.y1 = self.y1[:301]
             self.y1.append(self.y1[-1])
+
+
+            cur.execute('UPDATE races SET end_time=? WHERE race_id=?', (str(datetime.datetime.now().isoformat(sep=' ')).split(' ')[1], self.id))
+            sqlite_connection.commit()
         else:
             if self.num_pilots == 2 and self.isFinished1:
                 last_data1 = cur.execute(f'SELECT * FROM race_{self.id}').fetchall()
@@ -386,17 +397,26 @@ class Race(QMainWindow):
                 last_pilot1 = [_[1] for _ in last_data1]
                 cur.execute(f'DELETE FROM race_{self.id}')
                 sqlite_connection.commit()
+            else:
+                cur.execute('UPDATE races SET end_time=? WHERE race_id=?', (str(datetime.datetime.now().isoformat(sep=' ')).split(' ')[1], self.id))
+                sqlite_connection.commit()
+            self.y2 = self.y2[::3]
+            a = float(self.y2[0])
+            self.y2 = self.y2[1:]
             self.y2 = self.y2[:-1]
+            self.y2 = [str((float(i) - a) - ((float(i) - a) % 5)) for i in self.y2]
+            self.y2.insert(0, '0')
             ln = len(self.y2)
-            y2_up = [self.y2[-1]] * (1201 - ln)
-            if ln < 1201:
+            y2_up = [self.y2[-1]] * (301 - ln)
+            if ln < 301:
                 self.y2.extend(y2_up)
-            elif ln > 1201:
-                self.y2 = self.y2[:1201]
-            self.y2 = self.y2[::2]
+            elif ln > 301:
+                self.y2 = self.y2[:301]
             self.y2.append(self.y2[-1])
 
-        for i in range(601):
+
+
+        for i in range(301):
             if self.pilot == 1:
                 if finish2:
                     cur.execute(f'INSERT OR IGNORE INTO race_{self.id} (time, pilot1, pilot2) VALUES(?, ?, ?)',
@@ -461,7 +481,16 @@ class Race(QMainWindow):
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.finish)
-        self.timer.start(60000)
+        self.timer.start(30000)
+        sqlite_connection = sqlite3.connect('./data/data.db')
+        cur = sqlite_connection.cursor()
+        now = datetime.datetime.now()
+        now_aware = now.astimezone()
+        if not self.isFinished1 and not self.isFinished2:
+            cur.execute('UPDATE races SET start_time=? WHERE race_id=?', (str(datetime.datetime.now().isoformat(sep=' ')).split(' ')[1], self.id))
+        sqlite_connection.commit()
+        cur.close()
+        sqlite_connection.close()
 
     def finish(self):
         url = 'http://esp8266.local/download'
@@ -501,6 +530,13 @@ class TableView(QMainWindow):
             self.tableWidget.horizontalHeaderItem(2).setText(f'Пилот {pilot2}')
         else:
             self.tableWidget.horizontalHeaderItem(2).setText('Нет')
+        sql_sel_start = cur.execute(f'SELECT start_time FROM races WHERE race_id={ex.table.Competition.StartRace.id}').fetchone()[0]
+        sql_sel_end = cur.execute(f'SELECT end_time FROM races WHERE race_id={ex.table.Competition.StartRace.id}').fetchone()[0]
+
+        self.start_time_label.setText(f'''Время начала заезда:
+{sql_sel_start}''')
+        self.end_time_label.setText(f'''Время окончания заезда:
+{sql_sel_end}''')
         cur.close()
         sqlite_connection.close()
 
@@ -551,7 +587,9 @@ if __name__ == '__main__':
     comp_id        INTEGER,
     type           TEXT,
     pilots_numbers TEXT,
-    isFinished     TEXT
+    isFinished     TEXT,
+    start_time     TEXT,
+    end_time       TEXT
 )''')
         sqlite_connection.commit()
         cur.close()

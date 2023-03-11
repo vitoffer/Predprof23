@@ -23,6 +23,7 @@ class CompsTableWindow(QMainWindow):
         self.tableWidget.cellClicked.connect(self.cell_was_clicked)
         self.load()
         self.Competition = None
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
 
     def add_competition(self):
         new_comp_data = NewCompetitionDialog(self)
@@ -47,7 +48,6 @@ class CompsTableWindow(QMainWindow):
             self.load()
         else:
             pass
-
 
     def delete_competition(self):
         if not (self.tableWidget.currentRow() + 1):

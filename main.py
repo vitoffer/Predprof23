@@ -3,7 +3,7 @@ import sys
 import datetime
 
 from PyQt5 import uic
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import pyqtgraph as pg
 import requests
@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         uic.loadUi('MainWindow.ui', self)
         self.toTableButton.clicked.connect(self.to_table)
         self.exitButton.clicked.connect(self.exit)
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
 
     def to_table(self):
         self.hide()

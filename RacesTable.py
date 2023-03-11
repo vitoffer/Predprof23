@@ -19,6 +19,7 @@ class RacesTableWindow(QMainWindow):
         self.id = comp_id
         self.load()
         self.StartRace = None
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         #graphWidget:
         self.graphWidget = pg.PlotWidget()
@@ -115,6 +116,10 @@ class RacesTableWindow(QMainWindow):
             self.label_selectRow.setText('Сначала выберите заезд!')
         else:
             self.label_selectRow.setText('')
+            self.StartRace.bd_addr = "00:18:E4:34:E4:B8"
+            self.StartRace.port = 1
+            self.StartRace.sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+            self.StartRace.sock.connect((self.StartRace.bd_addr, self.StartRace.port))
             self.hide()
             self.StartRace.show()
             self.StartRace.load()

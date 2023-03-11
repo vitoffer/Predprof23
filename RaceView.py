@@ -3,13 +3,14 @@ import sys
 import datetime
 
 from PyQt5 import uic
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import pyqtgraph as pg
 import requests
 import numpy as np
 import os
 from TableViewRace import *
+import bluetooth
 
 
 class Race(QMainWindow):
@@ -19,6 +20,7 @@ class Race(QMainWindow):
         self.id = race_id
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         a = cur.execute(f'SELECT pilots_numbers FROM races WHERE race_id={self.id}').fetchone()[0].split(', ')
         self.pilot1_num = a[0]
@@ -121,6 +123,7 @@ class Race(QMainWindow):
             self.plot(self.x, self.y2, "Pilot2", 'b')
         cur.close()
         sqlite_connection.close()
+
 
 
     def save(self):
@@ -234,17 +237,17 @@ class Race(QMainWindow):
             self.pilot1Button.setEnabled(True)
 
     def start(self):
-        url = 'http://esp8266.local/start'
-        req = requests.get(url)
-        if req:
-            self.isStartedlabel.setText(f'Заезд начался...')
+        # url = 'http://esp8266.local/start'
+        # req = requests.get(url)
+        self.sock.send('start'.encode('utf-8'))
+        self.isStartedlabel.setText(f'Заезд начался...')
         self.pilot1Button.setEnabled(False)
         self.pilot2Button.setEnabled(False)
         self.startButton.setEnabled(False)
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.finish)
-        self.timer.start(30000)
+        self.timer.start(15000)
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
         if not self.isFinished1 and not self.isFinished2:
@@ -254,16 +257,24 @@ class Race(QMainWindow):
         sqlite_connection.close()
 
     def finish(self):
-        url = 'http://esp8266.local/download'
-        req = requests.get(url)
-        if req:
-            if self.pilot == 1:
-                self.y1 = req.text.split(';\n')
-            else:
-                self.y2 = req.text.split(';\n')
+        # url = 'http://esp8266.local/download'
+        # req = requests.get(url)
+        self.sock.send('finish'.encode('utf-8'))
+        data = bytearray(self.sock.recv(4096))
+        ans = str(data.decode('utf-8'))
+        tst = ""
+        while ("fn" not in ans):
+            tst += ans
+            data = bytearray(self.sock.recv(4096))
+            ans = str(data.decode('utf-8'))
+        print(tst)
+        tst += ans
+
         if self.pilot == 2:
+            self.y2 = tst.split(";\n")
             self.pilot1Button.setEnabled(True)
         if self.pilot == 1:
+            self.y1 = tst.split(";\n")
             self.pilot2Button.setEnabled(True)
         self.isStartedlabel.setText('Заезд завершён')
         self.save()

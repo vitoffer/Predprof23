@@ -3,7 +3,7 @@ import sys
 import datetime
 
 from PyQt5 import uic
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 import pyqtgraph as pg
 import requests
@@ -18,6 +18,7 @@ class TableView(QMainWindow):
         self.toGraphButton.clicked.connect(self.graph_view)
         self.id = id
         self.num_pilots = num_pilots
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
@@ -54,7 +55,6 @@ class TableView(QMainWindow):
             self.tableWidget.setItem(indx, 2, QTableWidgetItem(str(row[2])))
         cur.close()
         sqlite_connection.close()
-
 
     def graph_view(self):
         self.close()

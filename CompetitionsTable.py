@@ -1,5 +1,14 @@
+import sqlite3
+import sys
+import datetime
+
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QDate
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import *
+import pyqtgraph as pg
+import requests
+import numpy as np
+import os
 from RacesTable import *
 
 
@@ -18,10 +27,9 @@ class CompsTableWindow(QMainWindow):
 
     def add_competition(self):
         new_comp_data = NewCompetitionDialog(self)
-        new_comp_data.calendarWidget.setMinimumDate(QDate.currentDate())
         if new_comp_data.exec():
             title = new_comp_data.title_line.text()
-            date = new_comp_data.calendarWidget.selectedDate().toString(Qt.DefaultLocaleLongDate)
+            date = new_comp_data.date_line.text()
             organizer = new_comp_data.organizer_line.text()
             place = new_comp_data.place_line.text()
             sqlite_connection = sqlite3.connect('./data/data.db')

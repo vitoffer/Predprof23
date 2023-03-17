@@ -1,15 +1,6 @@
-import sqlite3
-import sys
-import datetime
-
 from PyQt5 import uic
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import *
-import pyqtgraph as pg
-import requests
-import numpy as np
-import os
 from RaceView import *
+import bluetooth
 
 
 class RacesTableWindow(QMainWindow):
@@ -87,7 +78,7 @@ class RacesTableWindow(QMainWindow):
     def create_new_race(self):
         new_race_data = NewRaceDialog(self)
         if new_race_data.exec():
-            type = new_race_data.type_line.text()
+            type = new_race_data.comboBox.currentText()
             pilot1_num = new_race_data.pilot1_line.text()
             pilot2_num = new_race_data.pilot2_line.text()
             sqlite_connection = sqlite3.connect('./data/data.db')
@@ -116,9 +107,9 @@ class RacesTableWindow(QMainWindow):
             self.label_selectRow.setText('Сначала выберите заезд!')
         else:
             self.label_selectRow.setText('')
-            self.StartRace.bd_addr = "00:18:E4:34:E4:B8"
+            self.StartRace.bd_addr = "98:d3:36:f5:9c:3b"
             self.StartRace.port = 1
-            self.StartRace.sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+            self.StartRace.sock = bluetooth.BluetoothSocket()
             self.StartRace.sock.connect((self.StartRace.bd_addr, self.StartRace.port))
             self.hide()
             self.StartRace.show()

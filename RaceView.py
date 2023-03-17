@@ -3,14 +3,10 @@ import sys
 import datetime
 
 from PyQt5 import uic
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import *
+from PyQt5 import QtCore
 import pyqtgraph as pg
-import requests
 import numpy as np
-import os
 from TableViewRace import *
-import bluetooth
 
 
 class Race(QMainWindow):
@@ -143,7 +139,7 @@ class Race(QMainWindow):
             a = float(self.y1[0])
             self.y1 = self.y1[1:]
             self.y1 = self.y1[:-1]
-            self.y1 = [str((float(i) - a) - ((float(i) - a) % 5)) for i in self.y1]
+            self.y1 = [str(((float(i) - a) - ((float(i) - a) % 5)) / 3.6) for i in self.y1]
             self.y1.insert(0, '0')
             ln = len(self.y1)
             y1_up = [self.y1[-1]] * (301 - ln)
@@ -170,7 +166,7 @@ class Race(QMainWindow):
             a = float(self.y2[0])
             self.y2 = self.y2[1:]
             self.y2 = self.y2[:-1]
-            self.y2 = [str((float(i) - a) - ((float(i) - a) % 5)) for i in self.y2]
+            self.y2 = [str(((float(i) - a) - ((float(i) - a) % 5)) / 3.6) for i in self.y2]
             self.y2.insert(0, '0')
             ln = len(self.y2)
             y2_up = [self.y2[-1]] * (301 - ln)
@@ -179,8 +175,6 @@ class Race(QMainWindow):
             elif ln > 301:
                 self.y2 = self.y2[:301]
             self.y2.append(self.y2[-1])
-
-
 
         for i in range(301):
             if self.pilot == 1:
@@ -247,7 +241,7 @@ class Race(QMainWindow):
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.finish)
-        self.timer.start(15000)
+        self.timer.start(30000)
         sqlite_connection = sqlite3.connect('./data/data.db')
         cur = sqlite_connection.cursor()
         if not self.isFinished1 and not self.isFinished2:
@@ -267,7 +261,6 @@ class Race(QMainWindow):
             tst += ans
             data = bytearray(self.sock.recv(4096))
             ans = str(data.decode('utf-8'))
-        print(tst)
         tst += ans
 
         if self.pilot == 2:

@@ -29,16 +29,6 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="type_line">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>50</y>
-     <width>151</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_type">
    <property name="geometry">
     <rect>
@@ -112,6 +102,54 @@
      <height>21</height>
     </rect>
    </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>151</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="editable">
+    <bool>false</bool>
+   </property>
+   <item>
+    <property name="text">
+     <string>qualifying</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>top 32</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>top 16</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>top 8</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>semifinal</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>battle for 3rd place</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>final</string>
+    </property>
+   </item>
   </widget>
  </widget>
  <resources/>
